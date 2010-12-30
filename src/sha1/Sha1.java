@@ -8,21 +8,30 @@ public class Sha1 {
 		Word[] h = initial();
 
 		processChunk(h, repeat(16, Word.ZERO));
+		Bit.XORS.set(0);
+		Bit.ANDS.set(0);
 		processChunk(h, new Word[] {
-				Word.ZERO, Word.ZERO, // 64-bits of crap
+				Word.makeTracked("first"), Word.ZERO,
 				Word.LEFT_BIT, // 1-bit
 				Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO, Word.ZERO,
 				Word.ZERO, Word.SIZE // size
 				});
-		final String asString = Arrays.toString(h);
-		System.out.println((
-				"[0d0e4793 (00001101 00001110 01000111 10010011)," +
-				" 8f6e0016 (10001111 01101110 00000000 00010110)," +
-				" 6e735273 (01101110 01110011 01010010 01110011)," +
-				" 2ddfb7c6 (00101101 11011111 10110111 11000110)," +
-				" 10f44db2 (00010000 11110100 01001101 10110010)]"
-				).equals(asString));
-		System.out.println(asString);
+		System.out.println(Bit.XORS);
+		System.out.println(Bit.ANDS);
+
+		for (Word w : h)
+			for (Bit b : w.val)
+				System.out.println(b);
+
+		//		final String asString = Arrays.toString(h);
+//		System.out.println((
+//				"[0d0e4793 (00001101 00001110 01000111 10010011)," +
+//				" 8f6e0016 (10001111 01101110 00000000 00010110)," +
+//				" 6e735273 (01101110 01110011 01010010 01110011)," +
+//				" 2ddfb7c6 (00101101 11011111 10110111 11000110)," +
+//				" 10f44db2 (00010000 11110100 01001101 10110010)]"
+//				).equals(asString));
+//		System.out.println(asString);
 	}
 
 	private static Word[] repeat(int time, Word what) {

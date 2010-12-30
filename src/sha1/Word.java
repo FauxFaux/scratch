@@ -1,5 +1,7 @@
 package sha1;
 
+import sha1.Bit.NotResolvableException;
+
 
 class Word {
 	static class Adder {
@@ -32,11 +34,24 @@ class Word {
 
 	static final Word SIZE = new Word(512 + 64);
 
-	private final Bit[] val = new Bit[BITS];
+	final Bit[] val = new Bit[BITS];
 
 	private Word(int v) {
 		for (int i = 0; i < BITS; ++i)
 			val[i] = Bit.constant((v & (1 << (BITS-i-1))) != 0);
+	}
+
+	static Word makeTracked(String name) {
+		Word ret = new Word();
+		final int num = 1;
+		for (int i = 0; i < num; i++) {
+			ret.val[i] = Bit.tracked(name + i);
+		}
+
+		for (int i = num; i < BITS; i++) {
+			ret.val[i] = Bit.constant(false);
+		}
+		return ret;
 	}
 
 	private Word() {
@@ -78,10 +93,16 @@ class Word {
 
 	@Override
 	public String toString() {
-		return String.format("%08x (%s)", num(), bits());
+		int num;
+		try {
+			num = num();
+		} catch (NotResolvableException e) {
+			num = 0;
+		}
+		return String.format("%08x (%s)", num, bits());
 	}
 
-	private int num() {
+	private int num() throws NotResolvableException {
 		int ret = 0;
 		for (int i = 0; i < 32; ++i)
 			ret |= (val[BITS - i - 1].booleanValue() ? 1 : 0) << i;
@@ -93,7 +114,7 @@ class Word {
 		for (int i = 0; i < BITS; ++i) {
 			if (i != 0 && i % 8 == 0)
 				sb.append(" ");
-			sb.append(val[i].booleanValue() ? "1" : "0");
+			sb.append(val[i].toString());
 		}
 		return sb.toString();
 	}
